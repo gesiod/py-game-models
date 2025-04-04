@@ -1,4 +1,4 @@
-from venv import create
+from venv import create  # noqa: F401
 
 import init_django_orm  # noqa: F401
 
@@ -9,41 +9,39 @@ import json
 def main() -> None:
     with open("players.json", "r") as file:
         data = json.load(file)
-        # print(data)
 
     for name in data:
-        player_data = data[name]
-        player = Player.objects.create(
-            nickname = name,
-            email = (player_data["email"] if player_data["email"] else None),
-            bio = (player_data["bio"] if player_data["bio"] else None)
-        )
-
+        player_data = data.get(name)
         race = player_data.get("race")
         if race:
-            player.race = Race.objects.get_or_create(
-                name = race["name"],
-                description = race["description"]
+            race_instance, created = Race.objects.get_or_create(
+                name=race["name"],
+                description=race["description"]
             )
-            skills = race.get["skills"]
+
+            skills = race.get("skills")
             if skills:
                 for skill in skills:
-                    Skill.objects.create(
-                        name = skill["name"],
-                        bonus = skill["bonus"],
-                        race = player.race
+                    skill_instance, created = Skill.objects.get_or_create(
+                        name=skill["name"],
+                        bonus=skill["bonus"],
+                        race=race_instance
                     )
-
-
         guild = player_data.get("guild")
+        player_guild = None
         if guild:
-            player.guild = Guild.objects.get_or_create(
-                name = guild["name"],
-                description = guild["description"]
+            player_guild, created = Guild.objects.get_or_create(
+                name=guild["name"],
+                description=guild["description"]
             )
 
-        print(data[name])
-
+        player, created = Player.objects.get_or_create(
+            nickname=name,
+            email=(player_data["email"] if player_data["email"] else None),
+            bio=(player_data["bio"] if player_data["bio"] else None),
+            race=race_instance,
+            guild=(player_guild if player_guild else None)
+        )
 
 
 if __name__ == "__main__":
