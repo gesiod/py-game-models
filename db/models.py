@@ -24,5 +24,5 @@ class Player(models.Model):
     bio = models.CharField(max_length=255, null=True)
     race = models.ForeignKey(Race, related_name="played_race", on_delete=models.CASCADE)
     guild = models.ForeignKey(Guild, related_name="guild", null=True, on_delete=models.SET_NULL)
-    created_at = models.DateTimeField(default=datetime.date, null=True)
+    created_at = models.DateTimeField(default=datetime.datetime.now(), null=True)
 
